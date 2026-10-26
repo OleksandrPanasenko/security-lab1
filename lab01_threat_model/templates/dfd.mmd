@@ -1,0 +1,25 @@
+flowchart TD
+    classDef ext fill:#f9f9f9,stroke:#333,stroke-width:2px;
+
+    subgraph EXT["Зовнішня зона (Інтернет)"]
+        Student(["Студент / Користувач"]):::ext
+        Admin(["Адміністратор"]):::ext
+    end
+
+    subgraph DMZ["Межа довіри 1: ДМЗ / Вебсервер"]
+        WebApp["Вебдодаток / REST API Сервер"]
+    end
+
+    subgraph SEC["Межа довіри 2: Захищена зона даних"]
+        AuthDB[("База даних користувачів")]
+        FileStore[("Сховище файлів (Object Storage)")]
+        AuditLog[("Журнали аудиту та логів")]
+    end
+
+    %% Перетин меж довіри
+    Student -->|"1. HTTPS: Запит на автентифікацію / файл"| WebApp
+    Admin -->|"2. HTTPS: Адміністрування системи"| WebApp
+    
+    WebApp -->|"3. SQL: Перевірка облікових даних"| AuthDB
+    WebApp -->|"4. API: Збереження / читання файлів"| FileStore
+    WebApp -->|"5. I/O: Запис подій безпеки"| AuditLog
